@@ -48,5 +48,23 @@ passthru和system基本相同
 ![image](https://user-images.githubusercontent.com/44671805/158776734-f0f52c75-0919-41c5-9794-5a9eed0c035f.png)
 ![image](https://user-images.githubusercontent.com/44671805/158777498-42d5aaaf-5d45-4af9-abd4-866a2479ec88.png)
 
+### web11
+果然11题是用passthru绕过的
+![image](https://user-images.githubusercontent.com/44671805/158779193-0c3f0f7d-06f3-4a2d-95f2-5e04d8cc88a9.png)
+
+### web12
+![image](https://user-images.githubusercontent.com/44671805/158780013-96abf560-49ee-4ef4-800b-bb2120ce3339.png)
+分析代码，看出又过滤了一些函数。代码里说的是，如果不包含这些敏感函数，就eval($c)，eval是php里面一个能将接收到的传参当作代码执行的函数。先看下当前目录有什么
+![image](https://user-images.githubusercontent.com/44671805/158780329-f9e60358-92ba-4bba-8580-27bee05d0312.png)
+可以看出config.php就在当前目录下
+因为正则里面说不能输入config，这里可以把名字以base64加密
+![image](https://user-images.githubusercontent.com/44671805/158782032-a66f6634-cc72-4c02-b1d0-22d684c2c22c.png)
+构造payload：?c=$a=base64_decode('Y29uZmlnLnBocA==');$b=passthru("tac $a");
+
+### web13
+源码中过滤了参数中的 system exec highlight cat . ; file php config 等关键字, 这里可以使用 passthru()函数 配合反引号\`\` 来执行系统命令, **针对分号;的过滤, 我们可以使用 ?> 代替分号**, 首先查看当前目录下的文件
+?c=passthru("more \`ls | grep con*\`")?>
+
+```反引号``会将其中的内容当做系统命令来执行, 并返回一个字符串类型的变量用来保存执行结果, 下面的payload会先执行 `ls | grep con*`, 在将结果作为文件名供 more命令查询, 也就是 more config.php```
 
 
